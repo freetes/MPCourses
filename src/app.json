@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/index/main",
+    "pages/allCourses/main",
+    "pages/addCourse/main",
+    "pages/setting/main",
+    "pages/about/main"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFAEB9",
+    "navigationBarTitleText": "",
+    "navigationBarTextStyle": "white"
+  }
+}
