@@ -22,13 +22,13 @@ export default {
       env: 'freetes'
     })
 
-    wx.cloud.callFunction({
-      // 云函数名称
-      name: 'test',
-      success: function(res) {
-        console.log(res.result.openId)
-      }
-    })
+    // wx.cloud.callFunction({
+    //   // 云函数名称
+    //   name: 'test',
+    //   success: function(res) {
+    //     console.log(res.result.openId)
+    //   }
+    // })
   }
 }
 </script>

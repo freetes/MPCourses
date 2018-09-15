@@ -5,11 +5,6 @@
       <label for="title">标题</label>
       <input type="text" @change="changeValue('title', $event)" :value="data.title" id="title">
     </div>
-    <!-- <div class="inputGroup">
-      <label for="classColor">顶部颜色</label>
-      <input type="text" @change="changeValue('color', $event)" :value="data.color" id="classColor">
-      <div :style="{width: '20px', height: '20px', backgroundColor: data.color}"></div>
-    </div> -->
 
     <h3>课表设置</h3>
     <div class="inputGroup">
@@ -18,14 +13,22 @@
         <view>{{data.week==''?'请选择':data.week}}</view>
       </picker>
     </div>
+
     <div class="btnsDiv">
       <span @click="resetData">重置</span>
-      <span class="submit" @click="changeInfo">确定修改</span>
+      <span @click="changeInfo">确定修改</span>
+    </div>
+
+    <h3>数据设置</h3>
+    <div class="btnsDiv">
+      <span @click="pullFromCloud">拉取数据</span>
+      <span @click="updateToCloud">上传数据至云</span>
     </div>
   </div>
 </template>
 
 <script>
+const db = wx.cloud.database()
 
 export default {
   data () {
@@ -46,7 +49,7 @@ export default {
       let that = this
 
       that.data = {
-        title: info.title || '',
+        title: info.title || '香香的课程表',
         week: info.week.date || '',
       }
     },
@@ -61,7 +64,6 @@ export default {
         }
       }
 
-      console.log(info)
       wx.setNavigationBarTitle({
         title: info.title
       })
@@ -69,6 +71,115 @@ export default {
 
       wx.setNavigationBarTitle({
         title: info.title
+      })
+    },
+    updateToCloud(){
+      wx.showModal({
+        title: '上传数据',
+        content: `确定上传本地数据到云服务器？`,
+        success: function(res) {
+          if (res.confirm) {
+            // 获取openid
+            wx.cloud.callFunction({
+              // 云函数名称
+              name: 'test',
+              success: function(res) {
+                const openid = res.result.openId
+
+                // 获取数据
+                db.collection('courses').where({
+                  _openid: openid,
+                })
+                .get({
+                  success: function(res) {
+                    let courses = wx.getStorageSync('courses')
+                    console.log(res.data)
+
+                    if(res.data.length == 0){
+
+                      // 保存至数据库
+                      db.collection('courses').add({
+                        data: {
+                          courses,
+                          date: new Date(Date.now()),
+                        },
+                        success: function(res) {
+                          wx.showToast({
+                            title: '第一次上传到云数据成功~',
+                            icon: 'success',
+                            duration: 2000
+                          })
+                        }
+                      })
+                    }
+                    else{
+                      db.collection('courses').doc(res.data[0]._id).update({
+                        data: {
+                          courses,
+                          date: new Date(Date.now()),
+                        },
+                        success: function(res) {
+                          wx.showToast({
+                            title: '更新云数据成功~',
+                            icon: 'success',
+                            duration: 2000
+                          })
+                        }
+                      })
+                    }
+                  }
+                })
+              }
+            })
+          } 
+          else if (res.cancel) {
+          }
+        }
+      })
+    },
+    pullFromCloud(){
+      // 获取openid
+      wx.cloud.callFunction({
+        // 云函数名称
+        name: 'test',
+        success: function(res) {
+          const openid = res.result.openId
+
+          db.collection('courses').where({
+            _openid: openid,
+          })
+          .get({
+            success: function(res) {
+              if(res.data.length == 0){
+                wx.showToast({
+                  title: '我这里没有你的数据额。。。请先上传',
+                  icon: 'none',
+                  duration: 2000
+                })
+              }
+              else{
+                let data = res.data[0]
+
+                wx.showModal({
+                  title: '替换数据',
+                  content: `确定替换掉本地数据？`,
+                  success: function(res) {
+                    if (res.confirm) {
+                      wx.setStorageSync('courses', data.courses)
+                      wx.showToast({
+                        title: '替换成功~',
+                        icon: 'success',
+                        duration: 2000
+                      })
+                    } 
+                    else if (res.cancel) {
+                    }
+                  }
+                })          
+              }
+            }
+          })
+        }
       })
     }
   },
