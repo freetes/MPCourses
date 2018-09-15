@@ -45,12 +45,11 @@ export default {
       this.data[node] = e.target.value
     },
     resetData(){
-      const info = wx.getStorageSync('info')
       let that = this
 
       that.data = {
-        title: info.title || '香香的课程表',
-        week: info.week.date || '',
+        title: '香香的课程表',
+        week: '2018-9-3'
       }
     },
     changeInfo(){
@@ -185,8 +184,12 @@ export default {
   },
 
   onShow () {
-    // 调用应用实例的方法获取全局数据
-    this.resetData()
+    const info = wx.getStorageSync('info')
+
+    this.data = {
+      title: info.title || '',
+      week: info.week.date || '',
+    }
   }
 }
 </script>

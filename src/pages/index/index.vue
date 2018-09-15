@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" @touchstart="touchstart" @touchend="touchend">
     <h2>{{week}}</h2>
     <h3>第{{count}}周</h3>
     <div class="coursesDiv">
@@ -46,40 +46,67 @@ export default {
       week: '',
       count: '',
       courses: [],
-      showMenu: false
+      showMenu: false,
+      touch: {
+        x: 0,
+        y: 0
+      },
+      changeDay: 0
     }
   },
-
+  watch: {
+    changeDay: function(day, newDay){
+      this.getCourses()
+    }
+  },
   methods: {
+    touchstart(e){
+      this.touch = {
+        x: e.mp.changedTouches[0].pageX,
+        y: e.mp.changedTouches[0].pageY,
+      }
+    },
+    touchend(e){
+      let that = this
+      
+      const movement = {
+        x: e.mp.changedTouches[0].pageX - this.touch.x,
+        y: e.mp.changedTouches[0].pageY - this.touch.y,
+      }
+      if(Math.abs(movement.x) > 150 && Math.abs(movement.y) <30){
+        movement.x>0?that.changeDay--:that.changeDay++
+      }
+    },
     gotoPage(url){
       wx.navigateTo({url})
     },
     getCourses(){
       let that = this
-      
-      this.showAddCourse = false
-      this.courses = []
-
       const info = wx.getStorageSync('info') || {}
       const courses = wx.getStorageSync('courses')
+      
+      that.showAddCourse = false
+      that.courses = []
 
-      that.count = parseInt((new Date(Date.now()) - new Date(info.week.date))/1000/60/60/24/7) + info.week.count
-      that.week = dateUtil.getWeek(Date.now())
+      // 得到周数以及星期
+      that.count = parseInt((new Date(Date.now()) - new Date(info.week.date) + that.changeDay*1000*60*60*24)/1000/60/60/24/7) + info.week.count
+      that.week = dateUtil.getWeek((new Date(Date.now()).getDay() + that.changeDay)%7)
 
       // 收集课程
       for(let i=0; i<courses.length; i++){
         // 判断是否在周数内和是否是今天
         courses[i].time[0]++
-        courses[i].time[0] == 7?courses[i].time[0]=0:''
+        courses[i].time[0] == 7?courses[i].time[0] = 0:''
         
-        if(courses[i].week.indexOf(that.count-1)!=-1 && courses[i].time[0] == new Date(Date.now()).getDay()){
+        if(courses[i].week.indexOf(that.count-1) != -1 && courses[i].time[0] == new Date(Date.now() + that.changeDay*1000*60*60*24).getDay()){
           courses[i].index = i
           that.courses.push(courses[i])
         }
       }
 
       // 排序
-      this.courses.sort((a, b)=>a.time[1]-b.time[1])
+      that.courses.sort((a, b)=>a.time[1]-b.time[1])
+      console.log(that.courses)
     },
     deleteCourse(index){
       let that = this
