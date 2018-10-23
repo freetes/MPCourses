@@ -21,14 +21,6 @@ export default {
     wx.cloud.init({
       env: 'freetes'
     })
-
-    // wx.cloud.callFunction({
-    //   // 云函数名称
-    //   name: 'test',
-    //   success: function(res) {
-    //     console.log(res.result.openId)
-    //   }
-    // })
   }
 }
 </script>

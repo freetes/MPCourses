@@ -1,5 +1,5 @@
 <template>
-  <div class="container" @touchstart="touchstart" @touchend="touchend">
+  <div class="container">
     <h2>{{week}}</h2>
     <h3>第{{count}}周</h3>
     <div class="coursesDiv">
@@ -33,6 +33,12 @@
       </div>
       <img @click="showMenu=!showMenu" src="/static/icons/menu.png">
     </div>
+
+    <div class="btns">
+      <span @click="changeDay--">👈</span>
+      <span @click="changeDay=0">⚪</span>
+      <span @click="changeDay++">👉</span>
+    </div>
   </div>
 </template>
 
@@ -60,23 +66,6 @@ export default {
     }
   },
   methods: {
-    touchstart(e){
-      this.touch = {
-        x: e.mp.changedTouches[0].pageX,
-        y: e.mp.changedTouches[0].pageY,
-      }
-    },
-    touchend(e){
-      let that = this
-      
-      const movement = {
-        x: e.mp.changedTouches[0].pageX - this.touch.x,
-        y: e.mp.changedTouches[0].pageY - this.touch.y,
-      }
-      if(Math.abs(movement.x) > 150 && Math.abs(movement.y) <30){
-        movement.x>0?that.changeDay--:that.changeDay++
-      }
-    },
     gotoPage(url){
       wx.navigateTo({url})
     },
@@ -219,7 +208,7 @@ h3{
 
 .btnsDiv{
   position: fixed;
-  bottom: 30px;
+  bottom: 50px;
   right: 30px;
   width: 50px;
   display: flex;
@@ -231,5 +220,18 @@ h3{
   height: 40px;
   background-color: white;
   border-radius: 50%;
+}
+
+.btns{
+  position: fixed;
+  bottom: 0;
+  width: 96%;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+.btns > span{
+  padding: 10px 40px;
 }
 </style>

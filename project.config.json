@@ -11,7 +11,7 @@
 	"compileType": "miniprogram",
 	"appid": "wx62bf0d9920ca7034",
 	"projectname": "my-courses",
-	"cloudfunctionRoot": "./functions/",
+	"cloudfunctionRoot": "functions/",
 	"condition": {
 		"search": {
 			"current": -1,
